@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Project Files">
+      <UniqueIdentifier>{7A90D211-00F0-B746-99E5-3E2537EC84D8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project Files\EVC">
+      <UniqueIdentifier>{6A9CFFE3-B4CB-9B41-A80D-CBFBF72E94D9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Project Files\Other Files">
+      <UniqueIdentifier>{8418640a-07ab-4b59-8f0c-9f5459e61dbb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Node.h">
+      <Filter>Project Files\EVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Graph.h">
+      <Filter>Project Files\EVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Edge.h">
+      <Filter>Project Files\EVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Limb.h">
+      <Filter>Project Files\EVC</Filter>
+    </ClInclude>
+    <ClInclude Include="Creature.h">
+      <Filter>Project Files\EVC</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\CommonInterfaces\Common2dCanvasInterface.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\CommonInterfaces\CommonCameraInterface.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\CommonInterfaces\CommonExampleInterface.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\CommonInterfaces\CommonGraphicsAppInterface.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\CommonInterfaces\CommonGUIHelperInterface.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\CommonInterfaces\CommonMultiBodyBase.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\CommonInterfaces\CommonParameterInterface.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\CommonInterfaces\CommonRenderInterface.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\CommonInterfaces\CommonRigidBodyBase.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\CommonInterfaces\CommonWindowInterface.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\Utils\b3Clock.h">
+      <Filter>Project Files\Other Files</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\Evolution\TimeWarpBaseMultiBody.h">
+      <Filter>Project Files\EVC</Filter>
+    </ClInclude>
+    <ClInclude Include="examples\BasicDemo\MultiBodyTest.h">
+      <Filter>Project Files\EVC</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Node.cpp">
+      <Filter>Project Files\EVC</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph.cpp">
+      <Filter>Project Files\EVC</Filter>
+    </ClCompile>
+    <ClCompile Include="Edge.cpp">
+      <Filter>Project Files\EVC</Filter>
+    </ClCompile>
+    <ClCompile Include="Creature.cpp">
+      <Filter>Project Files\EVC</Filter>
+    </ClCompile>
+    <ClCompile Include="Limb.cpp">
+      <Filter>Project Files\EVC</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\StandaloneMain\main_opengl_single_example.cpp">
+      <Filter>Project Files\EVC</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\ExampleBrowser\CollisionShape2TriangleMesh.cpp">
+      <Filter>Project Files\Other Files</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\ExampleBrowser\GL_ShapeDrawer.cpp">
+      <Filter>Project Files\Other Files</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\ThirdPartyLibs\Glew\glew.c">
+      <Filter>Project Files\Other Files</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\ExampleBrowser\OpenGLGuiHelper.cpp">
+      <Filter>Project Files\Other Files</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\Utils\b3Clock.cpp">
+      <Filter>Project Files\Other Files</Filter>
+    </ClCompile>
+    <ClCompile Include="examples\BasicDemo\MultiBodyTest.cpp">
+      <Filter>Project Files\EVC</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
