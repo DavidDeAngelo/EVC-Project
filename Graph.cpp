@@ -47,8 +47,12 @@ Node* Graph::getRoot() {
 	return root;
 }
 
-void Graph::breathFirstSearch(int limit) {
+void Graph::resetGraph() {
+	std::for_each(std::begin(nodes), std::end(nodes), [](Node* n) {n->reset(); });
+}
 
+void Graph::breathFirstSearch(int limit) {
+/*
 	queue<Edge*> Queue = queue<Edge*>();
 	for (auto &i : root->getChildren()) {
 		Queue.push(i);
@@ -65,8 +69,9 @@ void Graph::breathFirstSearch(int limit) {
 			Queue.push(i);
 		}
 	}
+	*/
 }
-//#define DEBUG_GRAPH
+#define DEBUG_GRAPH
 #ifdef DEBUG_GRAPH
 int main()
 {
@@ -76,7 +81,8 @@ int main()
 	g->addEdge(0, 0);
 	g->addEdge(0, 0);
 
-	Creature* c = new Creature(g, 1);
+	Creature* c = new Creature(g, 3);
+	c->createCreature();
 	delete c;
 
 

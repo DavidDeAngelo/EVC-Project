@@ -8,7 +8,7 @@
 #include "Edge.h"
 #include <algorithm>
 #include <iostream>
-#include <queue>
+
 namespace EVC {
 
 	class Graph {
@@ -25,7 +25,7 @@ namespace EVC {
 		Node* getNode(int index);
 		Edge* getEdge(int index);
 		Node* getRoot();
-		
+		void resetGraph();
 		void breathFirstSearch(int limit);
 
 	};

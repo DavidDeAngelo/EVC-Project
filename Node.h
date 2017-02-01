@@ -19,6 +19,8 @@ namespace EVC {
 		~Node();
 		void addInEdge(Edge* edge);
 		void addOutEdge(Edge* edge);
+		int getDepth();
+		void reset();
 		void visit();
 		const std::vector<Edge*>& getChildren() const { return childEdges; }
 

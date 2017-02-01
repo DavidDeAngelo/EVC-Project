@@ -13,17 +13,12 @@ namespace EVC {
 		Node* parentNode;
 		Node* childNode;
 		btScalar childScale;
-
 	public:
-		int recursiveDepth = 0;
 		Edge(Node* parent, Node* child, btScalar scale);
 		~Edge();
 		Node* getParent();
 		Node* getChild();
-		void visit();
-
-
-
+		btScalar getScale();
 	};
 
 }

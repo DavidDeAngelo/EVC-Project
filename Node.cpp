@@ -22,8 +22,15 @@ void Node::addOutEdge(Edge* edge) {
 	childEdges.push_back(edge);
 }
 
+int Node::getDepth() {
+	return recursiveDepth;
+}
+
 void Node::visit() {
 	recursiveDepth++;
-	std::cout << size.getX() << "," << size.getY() << "," << size.getZ() << ":" << "Recursive Limit:" << recursiveDepth;
+	//std::cout << size.getX() << "," << size.getY() << "," << size.getZ() << ":" << "Recursive Limit:" << recursiveDepth;
+}
 
+void Node::reset() {
+	recursiveDepth = 0;
 }
