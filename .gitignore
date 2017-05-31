@@ -243,3 +243,5 @@ ModelManifest.xml
 
 # FAKE - F# Make
 .fake/
+/lib/bullet3-master
+/lib/bullet3-master

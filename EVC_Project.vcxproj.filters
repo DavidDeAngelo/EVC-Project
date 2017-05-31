@@ -1,69 +1,97 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="examples\BasicDemo\MultiBodyTest.cpp" />
-    <ClCompile Include="examples\StandaloneMain\main_opengl_single_example.cpp" />
-    <ClCompile Include="Graph.cpp" />
-    <ClCompile Include="Node.cpp" />
-    <ClCompile Include="Edge.cpp" />
-    <ClCompile Include="Creature.cpp" />
-    <ClCompile Include="Limb.cpp" />
-    <ClCompile Include="examples\Utils\b3Clock.cpp">
-      <Filter>Project Files\Other Files</Filter>
+    <ClCompile Include="src\examples\Utils\b3Clock.cpp">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClCompile>
-    <ClCompile Include="examples\ExampleBrowser\CollisionShape2TriangleMesh.cpp">
-      <Filter>Project Files\Other Files</Filter>
+    <ClCompile Include="src\examples\ExampleBrowser\CollisionShape2TriangleMesh.cpp">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClCompile>
-    <ClCompile Include="examples\ExampleBrowser\OpenGLGuiHelper.cpp">
-      <Filter>Project Files\Other Files</Filter>
+    <ClCompile Include="src\examples\ExampleBrowser\GL_ShapeDrawer.cpp">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClCompile>
-    <ClCompile Include="examples\ExampleBrowser\GL_ShapeDrawer.cpp">
-      <Filter>Project Files\Other Files</Filter>
+    <ClCompile Include="src\examples\ThirdPartyLibs\Glew\glew.c">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClCompile>
-    <ClCompile Include="examples\ThirdPartyLibs\Glew\glew.c">
-      <Filter>Project Files\Other Files</Filter>
+    <ClCompile Include="src\examples\StandaloneMain\main_opengl_single_example.cpp">
+      <Filter>Src\Third_Party_Code</Filter>
+    </ClCompile>
+    <ClCompile Include="src\examples\ExampleBrowser\OpenGLGuiHelper.cpp">
+      <Filter>Src\Third_Party_Code</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Node.cpp">
+      <Filter>Src\EVC Code</Filter>
+    </ClCompile>
+    <ClCompile Include="src\examples\BasicDemo\MultiBodyTest.cpp">
+      <Filter>Src\EVC Code</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Limb.cpp">
+      <Filter>Src\EVC Code</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graph.cpp">
+      <Filter>Src\EVC Code</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Edge.cpp">
+      <Filter>Src\EVC Code</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Creature.cpp">
+      <Filter>Src\EVC Code</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="examples\BasicDemo\MultiBodyTest.h" />
-    <ClInclude Include="examples\Evolution\TimeWarpBaseMultiBody.h" />
-    <ClInclude Include="Edge.h" />
-    <ClInclude Include="Graph.h" />
-    <ClInclude Include="Creature.h" />
-    <ClInclude Include="Limb.h" />
-    <ClInclude Include="Node.h" />
-    <ClInclude Include="examples\Utils\b3Clock.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\Utils\b3Clock.h">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClInclude>
-    <ClInclude Include="examples\CommonInterfaces\Common2dCanvasInterface.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\CommonInterfaces\Common2dCanvasInterface.h">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClInclude>
-    <ClInclude Include="examples\CommonInterfaces\CommonCameraInterface.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\CommonInterfaces\CommonCameraInterface.h">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClInclude>
-    <ClInclude Include="examples\CommonInterfaces\CommonExampleInterface.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\CommonInterfaces\CommonExampleInterface.h">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClInclude>
-    <ClInclude Include="examples\CommonInterfaces\CommonGraphicsAppInterface.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\CommonInterfaces\CommonWindowInterface.h">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClInclude>
-    <ClInclude Include="examples\CommonInterfaces\CommonGUIHelperInterface.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\CommonInterfaces\CommonRigidBodyBase.h">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClInclude>
-    <ClInclude Include="examples\CommonInterfaces\CommonMultiBodyBase.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\CommonInterfaces\CommonRenderInterface.h">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClInclude>
-    <ClInclude Include="examples\CommonInterfaces\CommonParameterInterface.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\CommonInterfaces\CommonParameterInterface.h">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClInclude>
-    <ClInclude Include="examples\CommonInterfaces\CommonRenderInterface.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\CommonInterfaces\CommonMultiBodyBase.h">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClInclude>
-    <ClInclude Include="examples\CommonInterfaces\CommonRigidBodyBase.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\CommonInterfaces\CommonGUIHelperInterface.h">
+      <Filter>Src\Third_Party_Code</Filter>
     </ClInclude>
-    <ClInclude Include="examples\CommonInterfaces\CommonWindowInterface.h">
-      <Filter>Project Files\Other Files</Filter>
+    <ClInclude Include="src\examples\CommonInterfaces\CommonGraphicsAppInterface.h">
+      <Filter>Src\Third_Party_Code</Filter>
+    </ClInclude>
+    <ClInclude Include="src\examples\Evolution\TimeWarpBaseMultiBody.h">
+      <Filter>Src\Third_Party_Code</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Node.h">
+      <Filter>Src\EVC Code</Filter>
+    </ClInclude>
+    <ClInclude Include="src\examples\BasicDemo\MultiBodyTest.h">
+      <Filter>Src\EVC Code</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Limb.h">
+      <Filter>Src\EVC Code</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graph.h">
+      <Filter>Src\EVC Code</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Edge.h">
+      <Filter>Src\EVC Code</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Creature.h">
+      <Filter>Src\EVC Code</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -72,6 +100,15 @@
     </Filter>
     <Filter Include="Project Files\Other Files">
       <UniqueIdentifier>{9d2e021e-3b6d-4bb6-8792-e99d4ad10b59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src">
+      <UniqueIdentifier>{c635c0ad-f8c3-4d69-ac06-955af957039c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\Third_Party_Code">
+      <UniqueIdentifier>{47a7f0e5-205a-45dc-a357-1cf14d56a259}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Src\EVC Code">
+      <UniqueIdentifier>{eaf227b8-b52d-42f5-a7fe-0dec793033ed}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
