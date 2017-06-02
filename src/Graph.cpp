@@ -46,11 +46,11 @@ Edge* Graph::getEdge(int index) {
 Node* Graph::getRoot() {
 	return root;
 }
-
+/*
 void Graph::resetGraph() {
 	std::for_each(std::begin(nodes), std::end(nodes), [](Node* n) {n->reset(); });
 }
-
+*/
 void Graph::breathFirstSearch(int limit) {
 /*
 	queue<Edge*> Queue = queue<Edge*>();

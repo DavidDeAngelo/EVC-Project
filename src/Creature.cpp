@@ -142,7 +142,6 @@ bool Creature::createCreature() {
 	}
 
 	cout << numLinks << "::";
-	genome->resetGraph();
 
 	btVector3 baseInertiaDiag(0.f, 0.f, 0.f);
 	float baseMass = 1.f;
