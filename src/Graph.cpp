@@ -71,7 +71,7 @@ void Graph::breathFirstSearch(int limit) {
 	}
 	*/
 }
-#define DEBUG_GRAPH
+//#define DEBUG_GRAPH
 #ifdef DEBUG_GRAPH
 int main()
 {

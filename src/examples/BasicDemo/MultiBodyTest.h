@@ -26,14 +26,16 @@ struct MultiBodyTest : public TimeWarpBaseMultiBody
 	}
 	btMultiBody* m_multiBody;
 	virtual ~MultiBodyTest();
+	btVector3 MultiBodyTest::anglesToVector(float a, float b);
 	virtual void initPhysics();
 	float friction = 1.;
 	virtual void renderScene();
+	void castRays();
 	btMultiBody* createFeatherstoneMultiBody_testMultiDof(btMultiBodyDynamicsWorld *pWorld, int numLinks, const btVector3 &basePosition, const btVector3 &baseHalfExtents, const btVector3 &linkHalfExtents, bool spherical, bool floating);
 	void addColliders_testMultiDof(btMultiBody *pMultiBody, btMultiBodyDynamicsWorld *pWorld, const btVector3 &baseHalfExtents, const btVector3 &linkHalfExtents);
-	void addBoxes_testMultiDof();
+	void addBoxes_testMultiDof(btBoxShape* colShapeIn);
 	btMultiBody* createMultiRagDoll(btMultiBodyDynamicsWorld *pWorld);
-
+	void stepSimulation(float deltaTime);
 	void resetCamera()
 	{
 		float dist = 4;

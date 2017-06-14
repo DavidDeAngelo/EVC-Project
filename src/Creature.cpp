@@ -109,6 +109,8 @@ bool Creature::createCreature() {
 
 */
 
+
+
 bool Creature::createCreature() {
 	if (genome == nullptr)
 		return false;
@@ -129,7 +131,8 @@ bool Creature::createCreature() {
 		map<Node*, int> currentHistory = get<1>(currentTuple);
 		//int count = std::count(currentHistory.begin(), currentHistory.end(), currentNode);
 		int count = currentHistory[currentNode];
-		if (count <= recursiveLimit) {
+		if (count <= recursiveLimit) { // visit node and push all children into the stack
+			//do linking stuff here
 			numLinks++;
 			for (auto &i : currentNode->getChildren()) {
 				Node* pushNode = i->getChild();
@@ -161,3 +164,4 @@ bool Creature::createCreature() {
 
 
 }
+

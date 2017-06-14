@@ -68,7 +68,7 @@ public:
 	}
 };
 
-//#define RUN_OPENGL
+#define RUN_OPENGL
 #ifdef RUN_OPENGL
 
 int main(int argc, char* argv[])

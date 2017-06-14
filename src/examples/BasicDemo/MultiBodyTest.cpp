@@ -1,11 +1,17 @@
-
+#include <math.h>  
 
 #include "MultiBodyTest.h"
 #include <iostream>
 #include "btBulletDynamicsCommon.h"
-#define ARRAY_SIZE_Y 5
-#define ARRAY_SIZE_X 5
-#define ARRAY_SIZE_Z 5
+
+#include "BulletCollision/NarrowPhaseCollision/btRaycastCallback.h"
+#include "BulletCollision/Gimpact/btGImpactShape.h"
+#include "LinearMath/btAlignedObjectArray.h"
+
+
+#define ARRAY_SIZE_Y 1
+#define ARRAY_SIZE_X 1
+#define ARRAY_SIZE_Z 1
 
 
 
@@ -29,6 +35,10 @@ MultiBodyTest::~MultiBodyTest() {
 
 }
 
+btVector3 MultiBodyTest::anglesToVector(float a, float b) {
+	return btVector3(cos(a)*cos(b), sin(a)*cos(b), sin(b));
+	//creates vector based on alpha beta angle describe here https://stackoverflow.com/questions/30011741/3d-vector-defined-by-2-angles
+}
 void MultiBodyTest::initPhysics()
 {
 	m_guiHelper->setUpAxis(1);
@@ -58,12 +68,12 @@ void MultiBodyTest::initPhysics()
 		createRigidBody(mass, groundTransform, groundShape, btVector4(0, 0, 1, 1));
 	}
 
-
+	
 	{
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btBoxShape* colShape = createBoxShape(btVector3(.1, .1, .1));
+		btBoxShape* colShape = createBoxShape(btVector3(1, 1, .1));
 
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
@@ -108,9 +118,45 @@ void MultiBodyTest::initPhysics()
 		//m_multiBody = createInvertedPendulumMultiBody1(m_dynamicsWorld, m_guiHelper, baseWorldTrans, true);
 
 
-		//	addBoxes_testMultiDof();
+		addBoxes_testMultiDof(colShape);
 	}
+	
 
+	#define CUBE_HALF_EXTENTS 1.f
+	btCollisionShape* shape = new btBoxShape(btVector3(CUBE_HALF_EXTENTS, CUBE_HALF_EXTENTS, CUBE_HALF_EXTENTS));
+	m_collisionShapes.push_back(shape);
+	btHingeConstraint* spHingeDynAB = NULL;
+	/*
+	{
+
+		// create a Hinge joint between two dynamic bodies
+		// create two rigid bodies
+		// static bodyA (parent) on top:
+		btTransform tr;
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(-20.), btScalar(-2.), btScalar(0.)));
+		btRigidBody* pBodyA = createRigidBody(1.0f, tr, shape);
+		pBodyA->setActivationState(DISABLE_DEACTIVATION);
+		// dynamic bodyB:
+		tr.setIdentity();
+		tr.setOrigin(btVector3(btScalar(-30.), btScalar(-2.), btScalar(0.)));
+		btRigidBody* pBodyB = createRigidBody(10.0, tr, shape);
+		pBodyB->setActivationState(DISABLE_DEACTIVATION);
+		// add some data to build constraint frames
+		btVector3 axisA(0.f, 1.f, 0.f);
+		btVector3 axisB(0.f, 1.f, 0.f);
+		btVector3 pivotA(-5.f, 0.f, 0.f);
+		btVector3 pivotB(5.f, 0.f, 0.f);
+		spHingeDynAB = new btHingeConstraint(*pBodyA, *pBodyB, pivotA, pivotB, axisA, axisB);
+		spHingeDynAB->setLimit(-SIMD_HALF_PI * 0.5f, SIMD_HALF_PI * 0.5f);
+		// add constraint to world
+		m_dynamicsWorld->addConstraint(spHingeDynAB, true);
+		// draw constraint frames and limits for debugging
+		spHingeDynAB->setDbgDrawSize(btScalar(5.f));
+	}
+	*/
+
+	/*
 	{
 		btVector3 linkHalfExtents(0.05, 0.37, 0.1);
 		btVector3 baseHalfExtents(0.05, 0.37, 0.1);
@@ -119,7 +165,7 @@ void MultiBodyTest::initPhysics()
 		bool selfCollide = true;
 		bool gyro = true;
 		bool damping = true;
-		int numLinks = 5;
+		int numLinks = 1; //FUCK
 		bool spherical = true;
 
 
@@ -165,16 +211,20 @@ void MultiBodyTest::initPhysics()
 		//addBoxes_testMultiDof();
 	}
 
+	*/
+
+
 
 	m_dynamicsWorld->setGravity(btVector3(0, -9.81, 0));
 	m_guiHelper->autogenerateGraphicsObjects(m_dynamicsWorld);
-
-
+	
+	
 }
 
 
 void MultiBodyTest::renderScene()
 {
+
 	TimeWarpBaseMultiBody::renderScene();
 
 }
@@ -217,7 +267,6 @@ btMultiBody* MultiBodyTest::createFeatherstoneMultiBody_testMultiDof(btMultiBody
 
 	btMultiBody *pMultiBody = new btMultiBody(numLinks, baseMass, baseInertiaDiag, !floating, canSleep);
 
-	numLinks = 5;
 	btQuaternion baseOriQuat(0.f, 0.f, 0.f, 1.f);
 	pMultiBody->setBasePos(basePosition);
 	pMultiBody->setWorldToBaseRot(baseOriQuat);
@@ -235,7 +284,7 @@ btMultiBody* MultiBodyTest::createFeatherstoneMultiBody_testMultiDof(btMultiBody
 
 	//y-axis assumed up
 	btVector3 parentComToCurrentCom(0, -linkHalfExtents[1] * 2.f, 0);						//par body's COM to cur body's COM offset	
-	btVector3 currentPivotToCurrentCom(0, -linkHalfExtents[1], 0);							//cur body's COM to cur body's PIV offset
+	btVector3 currentPivotToCurrentCom(0, -linkHalfExtents[1]+ 1.f, 0);							//cur body's COM to cur body's PIV offset
 	btVector3 parentComToCurrentPivot = parentComToCurrentCom - currentPivotToCurrentCom;	//par body's COM to cur body's PIV offset
 	parentComToCurrentPivot = btVector3(-linkHalfExtents[0] * 2.f, 0, 0);
 	//////
@@ -258,10 +307,10 @@ btMultiBody* MultiBodyTest::createFeatherstoneMultiBody_testMultiDof(btMultiBody
 	}
 */
 
-	pMultiBody->setupSpherical(4, linkMass, linkInertiaDiag, 2, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, true);
-	pMultiBody->setupSpherical(3, linkMass, linkInertiaDiag, 1, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, true);
-	pMultiBody->setupSpherical(2, linkMass, linkInertiaDiag, 3, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, true);
-	pMultiBody->setupSpherical(1, linkMass, linkInertiaDiag, 0, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, true);
+	//pMultiBody->setupSpherical(4, linkMass, linkInertiaDiag, 2, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, true);
+	//pMultiBody->setupSpherical(3, linkMass, linkInertiaDiag, 1, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, true);
+	//pMultiBody->setupSpherical(2, linkMass, linkInertiaDiag, 3, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, true);
+	//pMultiBody->setupSpherical(1, linkMass, linkInertiaDiag, 0, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, true);
 	pMultiBody->setupSpherical(0, linkMass, linkInertiaDiag, -1, btQuaternion(0.f, 0.f, 0.f, 1.f), parentComToCurrentPivot, currentPivotToCurrentCom, true);
 
 
@@ -347,13 +396,14 @@ void MultiBodyTest::addColliders_testMultiDof(btMultiBody *pMultiBody, btMultiBo
 	}
 }
 
-void MultiBodyTest::addBoxes_testMultiDof()
+void MultiBodyTest::addBoxes_testMultiDof(btBoxShape* colShapeIn)
 {
 	//create a few dynamic rigidbodies
 	// Re-using the same collision is better for memory usage and performance
 
-	btBoxShape* colShape = new btBoxShape(btVector3(1, 1, 1));
+	//btBoxShape* colShape = new btBoxShape(btVector3(1, 1, 1));
 	//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
+	btBoxShape* colShape = new btBoxShape(*colShapeIn);
 	m_collisionShapes.push_back(colShape);
 
 	/// Create Dynamic Objects
@@ -397,8 +447,106 @@ void MultiBodyTest::addBoxes_testMultiDof()
 }
 
 
+void MultiBodyTest::castRays()
+{
+
+	static float up = 0.f;
+	static float dir = 1.f;
+	//add some simple animation
+	//if (!m_idle)
+	{
+		up += 0.01*dir;
+
+		if (btFabs(up)>2)
+		{
+			dir *= -1.f;
+		}
+
+		btTransform tr = m_dynamicsWorld->getCollisionObjectArray()[1]->getWorldTransform();
+		
+		static float angle = 0.f;
+		angle += 0.01f;
+		tr.setRotation(btQuaternion(btVector3(0, 1, 0), angle));
+		//m_dynamicsWorld->getCollisionObjectArray()[1]->setWorldTransform(tr);
+	}
 
 
+	///step the simulation
+	if (m_dynamicsWorld)
+	{
+
+		m_dynamicsWorld->updateAabbs();
+		m_dynamicsWorld->computeOverlappingPairs();
+
+		btVector3 red(1, 0, 0);
+		btVector3 blue(0, 0, 1);
+
+		///all hits
+		{
+			btVector3 from(-30, 1 + up, 0);
+			btVector3 to(30, 1, 0);
+			m_dynamicsWorld->getDebugDrawer()->drawLine(from, to, btVector4(0, 0, 0, 1));
+			btCollisionWorld::AllHitsRayResultCallback allResults(from, to);
+			allResults.m_flags |= btTriangleRaycastCallback::kF_KeepUnflippedNormal;
+			//kF_UseGjkConvexRaytest flag is now enabled by default, use the faster but more approximate algorithm
+			//allResults.m_flags |= btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest;
+			allResults.m_flags |= btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest;
+
+			m_dynamicsWorld->rayTest(from, to, allResults);
+
+			for (int i = 0; i<allResults.m_hitFractions.size(); i++)
+			{
+				
+				btVector3 p = from.lerp(to, allResults.m_hitFractions[i]);
+				m_dynamicsWorld->getDebugDrawer()->drawSphere(p, 0.1, red);
+				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + allResults.m_hitNormalWorld[i], red);
+			}
+		}
+
+		///first hit
+		{
+			btTransform tr = m_dynamicsWorld->getCollisionObjectArray()[1]->getWorldTransform();
+			btVector3 to(tr.getOrigin());
+			//btVector3 from(-30, 1.2, 0);
+			btVector3 from(30, 1.2, 0 + up);
+			m_dynamicsWorld->getDebugDrawer()->drawLine(from, to, btVector4(0, 0, 1, 1));
+
+			btCollisionWorld::ClosestRayResultCallback	closestResults(from, to);
+			closestResults.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
+
+			m_dynamicsWorld->rayTest(from, to, closestResults);
+
+			if (closestResults.hasHit())
+			{
+			//std::cout << "Ray Hit";
+				btVector3 p = from.lerp(to, closestResults.m_closestHitFraction);
+				m_dynamicsWorld->getDebugDrawer()->drawSphere(p, 0.1, red);
+				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + closestResults.m_hitNormalWorld, red);
+				btVector3 crossed = btVector3(0, 0, 1).cross(closestResults.m_hitNormalWorld);
+				btVector3 crossed_rounded = btVector3(floorf(abs(crossed.getX()) * 10) / 10, floorf(abs(crossed.getY()) * 10) / 10, floorf(abs(crossed.getZ()) * 10) / 10);
+				if(crossed_rounded == btVector3(0, 0, 0))
+					crossed = btVector3(0, 1, 0).cross(closestResults.m_hitNormalWorld);
+				//std::cout << "(" << floorf(crossed.getX() * 10) / 10 << "|" << floorf(abs(crossed.getY()) * 10) / 10 << "|" << floorf(crossed.getZ() * 10) / 10 << ")";
+
+				//crossed = btVector3(0, 1, 0).cross(closestResults.m_hitNormalWorld);
+				btVector3 crossed_2 = crossed.cross(closestResults.m_hitNormalWorld);
+				if (crossed_rounded == btVector3(0, 0, 0))
+					crossed_2=crossed_2*(-1.f);
+				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + crossed*10, red);
+				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + crossed_2*10, red);
+
+
+			}
+		}
+	}
+
+}
+
+void MultiBodyTest::stepSimulation(float deltaTime)
+{
+	castRays();
+	TimeWarpBaseMultiBody::stepSimulation(deltaTime);
+}
 
 CommonExampleInterface*    BasicExampleCreateFunc(CommonExampleOptions& options)
 {
