@@ -10,7 +10,7 @@
 
 
 #define ARRAY_SIZE_Y 1
-#define ARRAY_SIZE_X 1
+#define ARRAY_SIZE_X 2
 #define ARRAY_SIZE_Z 1
 
 
@@ -29,6 +29,58 @@
 #include "LinearMath/btAlignedObjectArray.h"
 #include "BulletDynamics/Featherstone/btMultiBodyJointMotor.h"
 #include "../Evolution/TimeWarpBaseMultiBody.h"
+
+struct	LastRayResultCallback : public btCollisionWorld::RayResultCallback
+{
+	LastRayResultCallback(const btVector3&	rayFromWorld, const btVector3&	rayToWorld)
+		:m_rayFromWorld(rayFromWorld),
+		m_rayToWorld(rayToWorld)
+	{
+	}
+
+	btAlignedObjectArray<const btCollisionObject*>		m_collisionObjects;
+
+	btVector3	m_rayFromWorld;//used to calculate hitPointWorld from hitFraction
+	btVector3	m_rayToWorld;
+
+	btScalar	m_lastHitFraction=0.;
+	btVector3	m_lastHitNormalWorld;
+
+	btAlignedObjectArray<btVector3>	m_hitNormalWorld;
+	btAlignedObjectArray<btVector3>	m_hitPointWorld;
+	btAlignedObjectArray<btScalar> m_hitFractions;
+
+	virtual	btScalar	addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace)
+	{
+		m_collisionObject = rayResult.m_collisionObject;
+		m_collisionObjects.push_back(rayResult.m_collisionObject);
+		btVector3 hitNormalWorld;
+		if (normalInWorldSpace)
+		{
+			hitNormalWorld = rayResult.m_hitNormalLocal;
+		}
+		else
+		{
+			///need to transform normal into worldspace
+			hitNormalWorld = m_collisionObject->getWorldTransform().getBasis()*rayResult.m_hitNormalLocal;
+		}
+		m_hitNormalWorld.push_back(hitNormalWorld);
+		btVector3 hitPointWorld;
+		hitPointWorld.setInterpolate3(m_rayFromWorld, m_rayToWorld, rayResult.m_hitFraction);
+		m_hitPointWorld.push_back(hitPointWorld);
+		m_hitFractions.push_back(rayResult.m_hitFraction);
+		if (rayResult.m_hitFraction > m_lastHitFraction) {
+			m_lastHitFraction = rayResult.m_hitFraction;
+			m_lastHitNormalWorld = hitNormalWorld;
+		}
+
+
+		return m_closestHitFraction;
+	}
+};
+
+
+
 MultiBodyTest::~MultiBodyTest() {
 	m_guiHelper->removeAllGraphicsInstances();
 	m_guiHelper->removeAllUserDebugItems();
@@ -73,7 +125,7 @@ void MultiBodyTest::initPhysics()
 		//create a few dynamic rigidbodies
 		// Re-using the same collision is better for memory usage and performance
 
-		btBoxShape* colShape = createBoxShape(btVector3(1, 1, .1));
+		btBoxShape* colShape = createBoxShape(btVector3(.5f, .5f, .5f));
 
 
 		//btCollisionShape* colShape = new btSphereShape(btScalar(1.));
@@ -449,7 +501,8 @@ void MultiBodyTest::addBoxes_testMultiDof(btBoxShape* colShapeIn)
 
 void MultiBodyTest::castRays()
 {
-
+	m_dynamicsWorld->getCollisionObjectArray()[1]->setUserIndex(1);
+	m_dynamicsWorld->getCollisionObjectArray()[2]->setUserIndex(2);
 	static float up = 0.f;
 	static float dir = 1.f;
 	//add some simple animation
@@ -462,12 +515,12 @@ void MultiBodyTest::castRays()
 			dir *= -1.f;
 		}
 
-		btTransform tr = m_dynamicsWorld->getCollisionObjectArray()[1]->getWorldTransform();
+		btTransform tr = m_dynamicsWorld->getCollisionObjectArray()[2]->getWorldTransform();
 		
 		static float angle = 0.f;
 		angle += 0.01f;
 		tr.setRotation(btQuaternion(btVector3(0, 1, 0), angle));
-		//m_dynamicsWorld->getCollisionObjectArray()[1]->setWorldTransform(tr);
+		m_dynamicsWorld->getCollisionObjectArray()[2]->setWorldTransform(tr);
 	}
 
 
@@ -483,57 +536,70 @@ void MultiBodyTest::castRays()
 
 		///all hits
 		{
-			btVector3 from(-30, 1 + up, 0);
-			btVector3 to(30, 1, 0);
+			btTransform tr_2 = m_dynamicsWorld->getCollisionObjectArray()[2]->getWorldTransform();
+			btVector3 to(tr_2.getOrigin());
+			btVector3 from(-30, 1.2, 0);
+			//btVector3 from(30, 1.2, 0 + up);
+
 			m_dynamicsWorld->getDebugDrawer()->drawLine(from, to, btVector4(0, 0, 0, 1));
-			btCollisionWorld::AllHitsRayResultCallback allResults(from, to);
-			allResults.m_flags |= btTriangleRaycastCallback::kF_KeepUnflippedNormal;
-			//kF_UseGjkConvexRaytest flag is now enabled by default, use the faster but more approximate algorithm
-			//allResults.m_flags |= btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest;
-			allResults.m_flags |= btTriangleRaycastCallback::kF_UseSubSimplexConvexCastRaytest;
+			m_dynamicsWorld->getDebugDrawer()->drawLine(from, to, btVector4(0, 0, 1, 1));
+
+			//btCollisionWorld::ClosestRayResultCallback	closestResults(from, to);
+			LastRayResultCallback	allResults(from, to);
+			//allResults.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
 
 			m_dynamicsWorld->rayTest(from, to, allResults);
 
-			for (int i = 0; i<allResults.m_hitFractions.size(); i++)
-			{
-				
-				btVector3 p = from.lerp(to, allResults.m_hitFractions[i]);
-				m_dynamicsWorld->getDebugDrawer()->drawSphere(p, 0.1, red);
-				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + allResults.m_hitNormalWorld[i], red);
-			}
+
+			btVector3 p = from.lerp(to, allResults.m_lastHitFraction);
+			m_dynamicsWorld->getDebugDrawer()->drawSphere(p, 0.1, red);
+			m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + allResults.m_lastHitNormalWorld, red);
+			
 		}
 
 		///first hit
 		{
 			btTransform tr = m_dynamicsWorld->getCollisionObjectArray()[1]->getWorldTransform();
+			//tr.setOrigin(tr.getOrigin() + btVector3(0, 0, 0));
+			//m_dynamicsWorld->getCollisionObjectArray()[1]->setWorldTransform(tr);
+
+			//btTransform tr_2 = m_dynamicsWorld->getCollisionObjectArray()[2]->getWorldTransform();
+			//static float angle = 0.f;
+			//angle += 0.01f;
+			//tr_2.setRotation(btQuaternion(btVector3(0, 1, 0), angle));
+			//m_dynamicsWorld->getCollisionObjectArray()[2]->setWorldTransform(tr_2);
+			
+			
 			btVector3 to(tr.getOrigin());
 			//btVector3 from(-30, 1.2, 0);
 			btVector3 from(30, 1.2, 0 + up);
 			m_dynamicsWorld->getDebugDrawer()->drawLine(from, to, btVector4(0, 0, 1, 1));
 
-			btCollisionWorld::ClosestRayResultCallback	closestResults(from, to);
+			//btCollisionWorld::ClosestRayResultCallback	closestResults(from, to);
+			LastRayResultCallback	closestResults(from, to);
 			closestResults.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
+
 
 			m_dynamicsWorld->rayTest(from, to, closestResults);
 
 			if (closestResults.hasHit())
 			{
 			//std::cout << "Ray Hit";
-				btVector3 p = from.lerp(to, closestResults.m_closestHitFraction);
+				btVector3 p = from.lerp(to, closestResults.m_lastHitFraction);
 				m_dynamicsWorld->getDebugDrawer()->drawSphere(p, 0.1, red);
-				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + closestResults.m_hitNormalWorld, red);
-				btVector3 crossed = btVector3(0, 0, 1).cross(closestResults.m_hitNormalWorld);
-				btVector3 crossed_rounded = btVector3(floorf(abs(crossed.getX()) * 10) / 10, floorf(abs(crossed.getY()) * 10) / 10, floorf(abs(crossed.getZ()) * 10) / 10);
-				if(crossed_rounded == btVector3(0, 0, 0))
-					crossed = btVector3(0, 1, 0).cross(closestResults.m_hitNormalWorld);
+				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + closestResults.m_lastHitNormalWorld, red);
+				btVector3 u = btVector3(0, 0, 1).cross(closestResults.m_lastHitNormalWorld);
+				btVector3 u_rounded = btVector3(floorf(abs(u.getX()) * 10) / 10, floorf(abs(u.getY()) * 10) / 10, floorf(abs(u.getZ()) * 10) / 10);
+				if(u_rounded == btVector3(0, 0, 0))
+					u = btVector3(0, 1, 0).cross(closestResults.m_lastHitNormalWorld);
 				//std::cout << "(" << floorf(crossed.getX() * 10) / 10 << "|" << floorf(abs(crossed.getY()) * 10) / 10 << "|" << floorf(crossed.getZ() * 10) / 10 << ")";
 
 				//crossed = btVector3(0, 1, 0).cross(closestResults.m_hitNormalWorld);
-				btVector3 crossed_2 = crossed.cross(closestResults.m_hitNormalWorld);
-				if (crossed_rounded == btVector3(0, 0, 0))
-					crossed_2=crossed_2*(-1.f);
-				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + crossed*10, red);
-				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + crossed_2*10, red);
+				btVector3 v = u.cross(closestResults.m_lastHitNormalWorld);
+				if (u_rounded == btVector3(0, 0, 0))
+					v=v*(-1.f);
+				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + u*10, red);
+				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + v*10, red);
 
 
 			}
@@ -541,6 +607,9 @@ void MultiBodyTest::castRays()
 	}
 
 }
+
+
+
 
 void MultiBodyTest::stepSimulation(float deltaTime)
 {
