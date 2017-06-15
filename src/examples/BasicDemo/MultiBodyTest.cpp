@@ -1,4 +1,4 @@
-#include <math.h>  
+﻿#include <math.h>  
 
 #include "MultiBodyTest.h"
 #include <iostream>
@@ -498,13 +498,110 @@ void MultiBodyTest::addBoxes_testMultiDof(btBoxShape* colShapeIn)
 	}
 }
 
+void MultiBodyTest::castRays() {
+	static float up = 0.f;
+	static float dir = 1.f;
 
+	//a  [0, 2π] and b  [−π/2, π/2]
+
+	static float alpha=0.f;
+	static float beta = 0.f;
+
+	//alpha += .1f;
+	//beta += .1f;
+	float x = cos(alpha)*cos(beta);
+	float z = sin(alpha)*cos(beta);
+	float y = sin(beta);
+	btVector3 angle_ray = btVector3(x, y, z);
+
+	btVector3 A_normal;
+	btVector3 A_up;
+	btVector3 A_cross;
+
+	btVector3 B_normal;
+	btVector3 B_up;
+	btVector3 B_cross;
+
+	//add some simple animation
+
+	up += 0.01*dir;
+	if (btFabs(up)>2)
+	{
+		dir *= -1.f;
+	}
+
+	btTransform tr = m_dynamicsWorld->getCollisionObjectArray()[2]->getWorldTransform();
+
+	static float angle = 0.f;
+	angle += 0.01f;
+	tr.setRotation(btQuaternion(btVector3(0, 1, 0), angle));
+	m_dynamicsWorld->getCollisionObjectArray()[2]->setWorldTransform(tr);
+
+	///step the simulation
+	if (m_dynamicsWorld)
+	{
+
+		m_dynamicsWorld->updateAabbs();
+		m_dynamicsWorld->computeOverlappingPairs();
+
+		btVector3 red(1, 0, 0);
+		btVector3 blue(0, 0, 1);
+
+		//ray to object 2 hits
+		//*******************************************
+		btTransform tr_2 = m_dynamicsWorld->getCollisionObjectArray()[2]->getWorldTransform();
+		btVector3 to(tr_2.getOrigin());
+		//btVector3 from(-30, 1.2, 0);
+		btVector3 from = angle_ray * 10;
+
+		m_dynamicsWorld->getDebugDrawer()->drawLine(from, to, btVector4(0, 0, 0, 1)); // draw ray
+		m_dynamicsWorld->getDebugDrawer()->drawLine(from, to, btVector4(0, 0, 1, 1));
+
+		LastRayResultCallback	allResults(from, to);
+		allResults.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
+
+		m_dynamicsWorld->rayTest(from, to, allResults);
+
+
+		btVector3 p = from.lerp(to, allResults.m_lastHitFraction);
+		m_dynamicsWorld->getDebugDrawer()->drawSphere(p, 0.1, red);
+		m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + allResults.m_lastHitNormalWorld, red);
+
+		A_up = btVector3(0, 0, 1).cross(btVector3(allResults.m_lastHitNormalWorld));
+		btVector3 A_up_rounded = btVector3(floorf(abs(A_up.getX()) * 10) / 10, floorf(abs(A_up.getY()) * 10) / 10, floorf(abs(A_up.getZ()) * 10) / 10);
+		if (A_up_rounded == btVector3(0, 0, 0))
+			A_up = btVector3(0, 1, 0).cross(allResults.m_lastHitNormalWorld);
+		btVector3 A_cross = A_up.cross(allResults.m_lastHitNormalWorld);
+		if (A_up_rounded == btVector3(0, 0, 0))
+			A_cross = A_cross*(-1.f);
+		m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + A_up * 10, red);
+		m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + A_cross * 10, red);
+
+		A_normal = allResults.m_lastHitNormalWorld;
+		//*******************************************
+
+
+
+	}
+}
+
+
+
+/*
 void MultiBodyTest::castRays()
 {
 	m_dynamicsWorld->getCollisionObjectArray()[1]->setUserIndex(1);
 	m_dynamicsWorld->getCollisionObjectArray()[2]->setUserIndex(2);
 	static float up = 0.f;
 	static float dir = 1.f;
+
+	btVector3 A_normal;
+	btVector3 A_up;
+	btVector3 A_cross;
+		
+	btVector3 B_normal;
+	btVector3 B_up;
+	btVector3 B_cross;
 	//add some simple animation
 	//if (!m_idle)
 	{
@@ -534,7 +631,7 @@ void MultiBodyTest::castRays()
 		btVector3 red(1, 0, 0);
 		btVector3 blue(0, 0, 1);
 
-		///all hits
+		//ray to object 2 hits
 		{
 			btTransform tr_2 = m_dynamicsWorld->getCollisionObjectArray()[2]->getWorldTransform();
 			btVector3 to(tr_2.getOrigin());
@@ -555,9 +652,22 @@ void MultiBodyTest::castRays()
 			m_dynamicsWorld->getDebugDrawer()->drawSphere(p, 0.1, red);
 			m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + allResults.m_lastHitNormalWorld, red);
 			
+			btVector3 up = btVector3(0, 0, 1).cross(btVector3(allResults.m_lastHitNormalWorld));
+			btVector3 up_rounded = btVector3(floorf(abs(up.getX()) * 10) / 10, floorf(abs(up.getY()) * 10) / 10, floorf(abs(up.getZ()) * 10) / 10);
+			if (up_rounded == btVector3(0, 0, 0))
+				up = btVector3(0, 1, 0).cross(allResults.m_lastHitNormalWorld);
+			btVector3 cross = up.cross(allResults.m_lastHitNormalWorld);
+			if (up_rounded == btVector3(0, 0, 0))
+				cross = cross*(-1.f);
+			m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + up * 10, red);
+			m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + cross * 10, red);
+
+			B_normal = allResults.m_lastHitNormalWorld;
+			B_up = up;
+			B_cross = cross;
 		}
 
-		///first hit
+		///ray test to object 1
 		{
 			btTransform tr = m_dynamicsWorld->getCollisionObjectArray()[1]->getWorldTransform();
 			//tr.setOrigin(tr.getOrigin() + btVector3(0, 0, 0));
@@ -600,14 +710,16 @@ void MultiBodyTest::castRays()
 					v=v*(-1.f);
 				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + u*10, red);
 				m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + v*10, red);
-
-
+				
+				//A_normal = closestResults.m_lastHitNormalWorld;
+				//A_up = u;
+				//A_cross = v;
 			}
 		}
 	}
 
 }
-
+*/
 
 
 
