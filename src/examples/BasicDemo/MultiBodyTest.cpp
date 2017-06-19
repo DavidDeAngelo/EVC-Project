@@ -103,9 +103,9 @@ void MultiBodyTest::initPhysics()
 		m_dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe + btIDebugDraw::DBG_DrawContactPoints);
 
 	///create a few basic rigid bodies
-	btBoxShape* groundShape = createBoxShape(btVector3(btScalar(50.), btScalar(50.), btScalar(50.)));
+	btBoxShape* groundShape = createBoxShape(btVector3(btScalar(10.), btScalar(10.), btScalar(10.)));
 
-
+	//(PLANE GROUND SHAPE HERE)
 	//groundShape->initializePolyhedralFeatures();
 	//btCollisionShape* groundShape = new btStaticPlaneShape(btVector3(0,1,0),50);
 
@@ -499,6 +499,7 @@ void MultiBodyTest::addBoxes_testMultiDof(btBoxShape* colShapeIn)
 }
 
 void MultiBodyTest::castRays() {
+	m_dynamicsWorld->setGravity(btVector3(0, 0, 0));
 	static float up = 0.f;
 	static float dir = 1.f;
 
@@ -507,7 +508,7 @@ void MultiBodyTest::castRays() {
 	static float alpha=0.f;
 	static float beta = 0.f;
 
-	//alpha += .1f;
+	//alpha += .003f;
 	//beta += .1f;
 	float x = cos(alpha)*cos(beta);
 	float z = sin(alpha)*cos(beta);
@@ -567,21 +568,84 @@ void MultiBodyTest::castRays() {
 		m_dynamicsWorld->getDebugDrawer()->drawSphere(p, 0.1, red);
 		m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + allResults.m_lastHitNormalWorld, red);
 
-		A_up = btVector3(0, 0, 1).cross(btVector3(allResults.m_lastHitNormalWorld));
+		A_normal = allResults.m_lastHitNormalWorld;
+		btVector3 A_normal_rounded = btVector3(floorf(abs(A_normal.getX()) * 10) / 10, floorf(abs(A_normal.getY()) * 10) / 10, floorf(abs(A_normal.getZ()) * 10) / 10);
+		//A_normal = A_normal_rounded;
+
+		A_up = btVector3(0, 0, 1).cross(btVector3(A_normal));
 		btVector3 A_up_rounded = btVector3(floorf(abs(A_up.getX()) * 10) / 10, floorf(abs(A_up.getY()) * 10) / 10, floorf(abs(A_up.getZ()) * 10) / 10);
 		if (A_up_rounded == btVector3(0, 0, 0))
-			A_up = btVector3(0, 1, 0).cross(allResults.m_lastHitNormalWorld);
-		btVector3 A_cross = A_up.cross(allResults.m_lastHitNormalWorld);
+			A_up = btVector3(0, 1, 0).cross(A_normal);
+		btVector3 A_cross = A_up.cross(A_normal);
 		if (A_up_rounded == btVector3(0, 0, 0))
 			A_cross = A_cross*(-1.f);
 		m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + A_up * 10, red);
 		m_dynamicsWorld->getDebugDrawer()->drawLine(p, p + A_cross * 10, red);
 
-		A_normal = allResults.m_lastHitNormalWorld;
+		
 		//*******************************************
+		//ray to object 1 
+		//*******************************************
+		/*
+		btTransform tr = m_dynamicsWorld->getCollisionObjectArray()[1]->getWorldTransform();
+		to=tr.getOrigin();
+		//btVector3 from(-30, 1.2, 0);
+		from = angle_ray * 10;
+
+		m_dynamicsWorld->getDebugDrawer()->drawLine(from, to, btVector4(0, 0, 0, 1)); // draw ray
+		m_dynamicsWorld->getDebugDrawer()->drawLine(from, to, btVector4(0, 0, 1, 1));
+
+		LastRayResultCallback	allResults_object_2(from, to);
+		allResults_object_2.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
+
+		m_dynamicsWorld->rayTest(from, to, allResults_object_2);
 
 
+		btVector3 p_1 = from.lerp(to, allResults_object_2.m_lastHitFraction);
 
+		*/
+		
+		//B_normal = allResults_object_2.m_lastHitNormalWorld;
+		
+		btVector3 p_1 = btVector3(-5.49986, 2.484374, -2.90608);
+		B_normal = btVector3(0, 1, 0);
+		//B_normal = B_normal*-1.f;
+		B_up = btVector3(0, 0, 1).cross(btVector3(B_normal));
+		btVector3 B_up_rounded = btVector3(floorf(abs(B_up.getX()) * 10) / 10, floorf(abs(B_up.getY()) * 10) / 10, floorf(abs(B_up.getZ()) * 10) / 10);
+		if (B_up_rounded == btVector3(0, 0, 0))
+			B_up = btVector3(0, 1, 0).cross(B_normal);
+		btVector3 B_cross = B_up.cross(B_normal);
+		if (B_up_rounded == btVector3(0, 0, 0))
+			B_cross = B_cross*(-1.f);
+
+		m_dynamicsWorld->getDebugDrawer()->drawLine(p_1, p_1 + B_up * 10, red);
+		m_dynamicsWorld->getDebugDrawer()->drawLine(p_1, p_1 + B_cross * 10, red);
+		m_dynamicsWorld->getDebugDrawer()->drawSphere(p_1, 0.1, red);
+		m_dynamicsWorld->getDebugDrawer()->drawLine(p_1, p_1 + B_normal, red);
+		//std::cout << "(" << p_1.getX() << "|" << p_1.getY() << "|" << p_1.getZ() << ")";
+
+		//*******************************************
+		
+
+		//btMatrix3x3 rotation_matrix = btMatrix3x3(B_cross.getX()*A_cross.getX(), B_up.getX()*A_cross.getY(), B_normal.getX()*A_cross.getZ(), B_cross.getY()*A_up.getX(), B_up.getY()*A_up.getY(), B_normal.getY()*A_up.getZ(), B_cross.getZ()*A_normal.getX(), B_up.getZ()*A_normal.getY(), B_normal.getZ()*A_normal.getZ());
+		
+		btMatrix3x3 B_space = btMatrix3x3(B_normal.getX(), B_up.getX(), B_cross.getX(), B_normal.getY(), B_up.getY(), B_cross.getY(), B_normal.getZ(), B_up.getZ(), B_up.getZ());
+		btMatrix3x3 A_space = btMatrix3x3(A_normal.getX(), A_up.getX(), A_cross.getX(), A_normal.getY(), A_up.getY(), A_cross.getY(), A_normal.getZ(), A_up.getZ(), A_up.getZ());
+		btMatrix3x3 B_space_inverse = B_space.transpose();
+		btMatrix3x3 rotation_matrix = A_space*B_space_inverse;
+
+
+		btQuaternion* rotation_q = new btQuaternion();
+		B_normal = rotation_matrix*B_normal;
+		m_dynamicsWorld->getDebugDrawer()->drawLine(p_1, p_1 + B_normal, red);
+
+		
+		rotation_matrix.getRotation(*rotation_q);
+		btTransform transform = m_dynamicsWorld->getCollisionObjectArray()[1]->getWorldTransform();
+		
+		transform.setRotation(*rotation_q);
+		m_dynamicsWorld->getCollisionObjectArray()[1]->setWorldTransform(transform);
+		delete rotation_q;
 	}
 }
 
